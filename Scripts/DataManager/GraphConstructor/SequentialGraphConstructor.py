@@ -143,7 +143,7 @@ class SequentialGraphConstructor(GraphConstructor):
             graph.x = words
         for t in graph.edge_types:
             if len(graph[t].edge_index) == 0:
-                graph[i].edge_index = torch.empty(2, 0, dtype=torch.int32)
+                graph[t].edge_index = torch.empty(2, 0, dtype=torch.int32)
         return graph
     
     def _add_multiple_general_nodes(self,graph , use_sentence_nodes, num_general_nodes):
