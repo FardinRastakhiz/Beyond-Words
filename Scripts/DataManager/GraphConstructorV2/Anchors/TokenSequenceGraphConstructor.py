@@ -23,7 +23,7 @@ class TokenSequenceGraphConstructor(Anchor):
                 load_preprocessed_data=False, naming_prefix='', node_name='token' , start_data_load=0, end_data_load=-1):
 
         super(AnchorGraphConstructor, self)\
-            .__init__(texts, self._Variables(), save_path, config, load_preprocessed_data,
+            .__init__(texts, save_path, config, load_preprocessed_data,
                       naming_prefix, node_name , start_data_load, end_data_load)
             self.settings = {"token_token_weight" : 2}
 
@@ -50,7 +50,7 @@ class TokenSequenceGraphConstructor(Anchor):
                     data[self.node_name].x[token.i] = torch.tensor(self.nlp.vocab.vectors[token_id])
         return data
 
-    def _connect_nodes(self , graph , doc):
+    def connect_nodes(self , graph , doc):
         token_token_edge_index = []
         token_token_edge_attr = []
         for token in doc:

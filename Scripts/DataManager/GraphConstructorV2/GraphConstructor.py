@@ -17,19 +17,11 @@ from Scripts.Configs.ConfigClass import Config
 from enum import Enum
 from flags import Flags
 from Scripts.Utils.GraphUtilities import reweight_hetero_graph
-class TextGraphType(Flags):
-    CO_OCCURRENCE = 1
-    DEPENDENCY = 2
-    SEQUENTIAL = 4
-    TAGS = 8
-    SENTENCE =16
-    SENTIMENT = 32
-    FULL = 63
 
 
 class GraphConstructor(ABC):
 
-    def __init__(self, raw_data, variables: _Variables, save_path: str, config: Config,
+    def __init__(self, raw_data, save_path: str, config: Config,
                  load_preprocessed_data: bool, naming_prefix: str = '', start_data_load=0, end_data_load=-1):
         
         self.raw_data = raw_data
@@ -37,7 +29,6 @@ class GraphConstructor(ABC):
         self.end_data_load = end_data_load if end_data_load > 0 else len(self.raw_data)
         self.config: Config = config
         self.load_preprocessed_data = load_preprocessed_data
-        self.var = variables
         self.save_path = os.path.join(config.root, save_path)
         self.naming_prefix = naming_prefix
         self.saving_batch_size = 1000 
@@ -47,7 +38,6 @@ class GraphConstructor(ABC):
     def setup(self, load_preprocessed_data = True):
         self.load_preprocessed_data = True
         if load_preprocessed_data:
-            self.load_var()
             for i in tqdm(range(self.start_data_load , self.end_data_load , self.saving_batch_size), desc ="Loding Graphs From File"):
                 self.load_data_range(i , i + self.saving_batch_size)
         else:
@@ -58,12 +48,10 @@ class GraphConstructor(ABC):
                     if i != self.start_data_load: 
                         self.save_data_range(save_start, save_start + self.saving_batch_size)
                         save_start = i
-                self.var.graphs_name[i] = f'{self.naming_prefix}_{i}'
             self.save_data_range(save_start, self.end_data_load)
-            self.var.save_to_file(os.path.join(self.save_path, f'{self.naming_prefix}_var.txt'))
             # Load the content
-            self._graphs: List = [None for r in range(self.end_data_load)]
-            self.setup(load_preprocessed_data=True)
+            # self._graphs: List = [None for r in range(self.end_data_load)]
+            # self.setup(load_preprocessed_data=True)
             
 
     @abstractmethod
@@ -83,7 +71,6 @@ class GraphConstructor(ABC):
     def get_graph(self, idx: int):
         if self._graphs[idx] is None:
             self._graphs[idx] = self.to_graph(self.raw_data[idx])
-            self.var.graphs_name[idx] = f'{self.naming_prefix}_{idx}'
         return self._graphs[idx]
 
 
@@ -94,7 +81,6 @@ class GraphConstructor(ABC):
         else:
             for idx in not_loaded_ids:
                 self._graphs[idx] = self.to_graph(self.raw_data[idx])
-                self.var.graphs_name[idx] = f'{self.naming_prefix}_{idx}'
         return {idx: self._graphs[idx] for idx in ids}
 
     def get_first(self):

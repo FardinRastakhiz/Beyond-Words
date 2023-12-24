@@ -28,7 +28,7 @@ class SentimentGraphConstructor(Float):
                 load_preprocessed_graph=False, naming_prefix='', node_name=self.node_name ,  start_graph_load=0, end_graph_load=-1):
 
         super(SentimentGraphConstructor, self)\
-            .__init__(texts, self._Variables(), save_path, config , anchor, load_preprocessed_graph,
+            .__init__(texts, save_path, config , anchor, load_preprocessed_graph,
                       naming_prefix , node_name , start_graph_load, end_graph_load)
     
 
@@ -38,15 +38,12 @@ class SentimentGraphConstructor(Float):
     def prepare_loaded_graph(self , graph):
         graph = super().prepare_loaded_data(graph)
         graph['sentiment'].x = self._build_initial_sentiment_vector()
-        for t in graph.edge_types:
-            if graph[t].edge_index.shape[1] == 0:
-                graph[t].edge_index = torch.empty(2, 0, dtype=torch.int32)
         return graph
     
-    def _add_nodes(self , doc , graph , use_compression=True):
+    def add_nodes(self , doc , graph , use_compression=False):
         graph['sentiment'].x = self._build_initial_sentiment_vector()
         return graph
-    def _connect_nodes(self , graph , doc):
+    def connect_nodes(self , graph , doc):
         sentiment_token_edge_index = []
         token_sentiment_edge_index = []
         sentiment_token_edge_attr = []

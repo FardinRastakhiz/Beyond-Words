@@ -26,7 +26,7 @@ class DependencyGraphConstructor(Float):
                 load_preprocessed_data=False, naming_prefix='', node_name='dep' ,  start_data_load=0, end_data_load=-1):
 
         super(DependencyGraphConstructor, self)\
-            .__init__(texts, self._Variables(), save_path, config, anchor , load_preprocessed_data,
+            .__init__(texts, save_path, config, anchor , load_preprocessed_data,
                       naming_prefix , node_name , start_data_load, end_data_load)
         self.dependencies = self.nlp.get_pipe("parser").labels
         self.settings = {"tokens_dep_weight" : 1,"dep_tokens_weight" : 1, "token_token_weight" : 2}
@@ -42,13 +42,10 @@ class DependencyGraphConstructor(Float):
     def prepare_loaded_data(self , graph):
         graph = super().prepare_loaded_data(graph)
         graph[self.node_name].x = self.__build_initial_dependency_vectors(len(self.dependencies))
-                for t in graph.edge_types:
-            if len(graph[t].edge_index) == 0:
-                graph[i].edge_index = torch.empty(2, 0, dtype=torch.int32)
         return graph
     
 
-    def _add_nodes(self , doc , graph , use_compression=True):
+    def add_nodes(self , doc , graph , use_compression=False):
         # nodes size is dependencies + tokens
         dep_length = len(self.dependencies)
         graph[self.node_name].length = dep_length
@@ -58,7 +55,7 @@ class DependencyGraphConstructor(Float):
             graph[self.node_name].x = self.__build_initial_dependency_vectors(dep_length)
         return graph
         
-    def _connect_nodes(self , graph , doc):
+    def connect_nodes(self , graph , doc):
         token_dep_edge_index = []
         dep_token_edge_index = []
         token_dep_edge_attr = []

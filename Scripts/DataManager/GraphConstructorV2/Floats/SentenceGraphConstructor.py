@@ -26,16 +26,16 @@ class SentenceGraphConstructor(Float):
                 load_preprocessed_graph=False, naming_prefix='', node_name=self.node_name ,  start_graph_load=0, end_graph_load=-1):
 
         super(SentenceGraphConstructor, self)\
-            .__init__(texts, self._Variables(), save_path, config, anchor , load_preprocessed_graph,
+            .__init__(texts, save_path, config, anchor , load_preprocessed_graph,
                       naming_prefix , node_name , start_graph_load, end_graph_load)
         self.settings = {"token_sentence_weight" : 1}
     
-    def _add_nodes(self , doc , graph , use_compression=True):
+    def add_nodes(self , doc , graph , use_compression=False):
         sentence_embeddings = [sent.vector for sent in doc.sents]
         graph[self.node_name].x = torch.tensor(sentence_embeddings, dtype=torch.float32)
         return graph
     
-    def _connect_nodes(self , graph , doc):
+    def connect_nodes(self , graph , doc):
         sentence_token_edge_index = []
         token_sentence_edge_index = []
         sentence_token_edge_attr = []
